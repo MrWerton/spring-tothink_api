@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: tothink
+      POSTGRES_PASSWORD: 12341234
+      POSTGRES_DB: tothink
+
+    ports:
+      - "5432:5432"
