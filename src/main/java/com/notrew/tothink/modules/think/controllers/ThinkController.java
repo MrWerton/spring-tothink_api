@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/think")
@@ -33,6 +34,15 @@ public class ThinkController {
         var think = new Think();
         BeanUtils.copyProperties(thinkDto, think);
         var response = thinkUseCase.saveThink(think);
+        System.out.println(response);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/")
+    public ResponseEntity<Think> saveThink(@RequestParam UUID id, @RequestBody ThinkDto thinkDto) throws Exception {
+        var think = new Think();
+        BeanUtils.copyProperties(thinkDto, think);
+        var response = thinkUseCase.updateThink(id, think);
         System.out.println(response);
         return ResponseEntity.ok(response);
     }

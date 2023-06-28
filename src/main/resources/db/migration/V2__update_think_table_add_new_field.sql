@@ -1,0 +1,1 @@
+alter table think add updated_at timestamp(6)
