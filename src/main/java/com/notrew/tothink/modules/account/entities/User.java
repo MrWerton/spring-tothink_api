@@ -2,6 +2,7 @@ package com.notrew.tothink.modules.account.entities;
 
 
 import com.notrew.tothink.modules.account.constants.Role;
+import com.notrew.tothink.modules.think.entities.Think;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user")
+    @Column(name = "my_thinks")
+    private List<Think> myThinks;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

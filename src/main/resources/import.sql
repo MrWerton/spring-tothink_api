@@ -1,1 +1,1 @@
-insert into think(id, created_at, title, body) values('27a5468f-9332-474b-8528-a9fbe902d907', '2023-06-22', 'hello', 'hello, world!')
+

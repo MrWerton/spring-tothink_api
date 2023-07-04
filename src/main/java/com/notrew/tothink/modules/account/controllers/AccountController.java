@@ -4,15 +4,13 @@ package com.notrew.tothink.modules.account.controllers;
 import com.notrew.tothink.modules.account.dto.AuthenticationResponseDto;
 import com.notrew.tothink.modules.account.dto.CredentialsDto;
 import com.notrew.tothink.modules.account.dto.RegisterDto;
+import com.notrew.tothink.modules.account.entities.User;
 import com.notrew.tothink.modules.account.usecases.AccountUsecase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -43,6 +41,13 @@ public class AccountController {
             HttpServletResponse response
     ) throws IOException {
         useCase.refreshToken(request, response);
+    }
+
+    @GetMapping("/user-details")
+    public ResponseEntity<User> getUserDetails(@RequestParam String email) {
+        var user = useCase.getUserDetails(email);
+        return ResponseEntity.ok(user);
+
     }
 
 

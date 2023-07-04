@@ -5,6 +5,7 @@ import com.notrew.tothink.modules.account.constants.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,9 +33,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(authorize ->
-                                authorize
-                                        .requestMatchers("/think/**").hasRole(Role.ADMIN.name())
-//                                .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        authorize
+                                .requestMatchers("/think/**").hasRole(Role.ADMIN.name())
+                                .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                                .anyRequest().authenticated()
+
+
                 )
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer
@@ -43,7 +47,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(lg -> lg
-                        .logoutUrl("/api/v1/auth/logout")
+                        .logoutUrl("/auth/logout")
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()));
 

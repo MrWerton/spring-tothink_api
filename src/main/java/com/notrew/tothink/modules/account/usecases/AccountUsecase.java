@@ -30,6 +30,11 @@ public class AccountUsecase {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    public User getUserDetails(String email) {
+
+        return repository.findByEmail(email).orElse(null);
+    }
+
     public AuthenticationResponseDto register(RegisterDto request) {
         var user = User.builder()
                 .firstname(request.getFirstname())

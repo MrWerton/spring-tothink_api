@@ -1,5 +1,6 @@
 package com.notrew.tothink.modules.think.entities;
 
+import com.notrew.tothink.modules.account.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,7 +26,12 @@ public class Think {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    
+
     private String title;
     private String body;
+
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
