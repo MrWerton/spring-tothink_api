@@ -44,7 +44,8 @@ public class AccountController {
     }
 
     @GetMapping("/user-details")
-    public ResponseEntity<User> getUserDetails(@RequestParam String email) {
+    public ResponseEntity<User> getUserDetails(@RequestParam(value = "email") String email) {
+        System.out.println(email);
         var user = useCase.getUserDetails(email);
         return ResponseEntity.ok(user);
 

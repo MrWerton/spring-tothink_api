@@ -2,6 +2,7 @@ package com.notrew.tothink.core.security;
 
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -67,9 +68,17 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) throws JwtException {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        if (!username.equals(userDetails.getUsername())) {
+            throw new JwtException("Invalid token for the provided user");
+        }
+
+        if (isTokenExpired(token)) {
+            throw new JwtException("Token has expired");
+        }
+
+        return true;
     }
 
     private boolean isTokenExpired(String token) {

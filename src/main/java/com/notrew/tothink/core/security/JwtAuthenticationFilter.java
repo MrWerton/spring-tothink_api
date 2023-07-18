@@ -1,6 +1,7 @@
 package com.notrew.tothink.core.security;
 
 import com.notrew.tothink.modules.account.repositories.TokenRepository;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,21 +39,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = _extractJwtFromRequest(request);
-        if (_isValidJwt(jwt)) {
-            final String userEmail = jwtService.extractUsername(jwt);
-            if (_shouldAuthenticate(userEmail)) {
-                final UserDetails userDetails = _getUserDetails(userEmail);
-                if (_isTokenValid(jwt, userDetails) && _isTokenPersisted(jwt)) {
-                    _setAuthenticationToken(request, userDetails);
+        try {
+            if (_isValidJwt(jwt)) {
+                final String userEmail = jwtService.extractUsername(jwt);
+                if (_shouldAuthenticate(userEmail)) {
+                    final UserDetails userDetails = _getUserDetails(userEmail);
+                    if (_isTokenValid(jwt, userDetails) && _isTokenPersisted(jwt)) {
+                        _setAuthenticationToken(request, userDetails);
+                    }
                 }
             }
+        } catch (JwtException e) {
+            // Handle JWT-related exceptions here
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+            return;
+        } catch (Exception e) {
+            // Handle other exceptions here if necessary
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
+            return;
         }
 
         filterChain.doFilter(request, response);
     }
 
     private boolean _shouldBypassAuthentication(HttpServletRequest request) {
-        return request.getServletPath().contains("/api/v1/auth");
+        return request.getServletPath().contains("/auth");
     }
 
     private String _extractJwtFromRequest(HttpServletRequest request) {
