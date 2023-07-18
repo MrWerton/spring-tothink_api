@@ -1,6 +1,5 @@
 package com.notrew.tothink.core.security;
 
-import com.notrew.tothink.modules.account.repositories.TokenRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final TokenRepository tokenRepository;
 
     @Override
     protected void doFilterInternal(
@@ -33,10 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        if (_shouldBypassAuthentication(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+  
 
         final String jwt = _extractJwtFromRequest(request);
         try {
@@ -44,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 final String userEmail = jwtService.extractUsername(jwt);
                 if (_shouldAuthenticate(userEmail)) {
                     final UserDetails userDetails = _getUserDetails(userEmail);
-                    if (_isTokenValid(jwt, userDetails) && _isTokenPersisted(jwt)) {
+                    if (_isTokenValid(jwt, userDetails)) {
                         _setAuthenticationToken(request, userDetails);
                     }
                 }
@@ -90,11 +85,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return jwtService.isTokenValid(jwt, userDetails);
     }
 
-    private boolean _isTokenPersisted(String jwt) {
-        return tokenRepository.findByToken(jwt)
-                .map(t -> !t.isExpired() && !t.isRevoked())
-                .orElse(false);
-    }
 
     private void _setAuthenticationToken(HttpServletRequest request, UserDetails userDetails) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -102,6 +92,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 null,
                 userDetails.getAuthorities()
         );
+        System.out.println(authToken);
+
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }

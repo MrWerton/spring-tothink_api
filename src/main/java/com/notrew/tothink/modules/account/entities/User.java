@@ -2,7 +2,6 @@ package com.notrew.tothink.modules.account.entities;
 
 
 import com.notrew.tothink.modules.account.constants.Role;
-import com.notrew.tothink.modules.think.entities.Think;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -33,12 +31,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
-
-    @OneToMany(mappedBy = "user")
-    @Column(name = "my_thinks")
-    private List<Think> myThinks;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

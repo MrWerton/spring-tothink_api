@@ -1,5 +1,6 @@
 package com.notrew.tothink.modules.think.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.notrew.tothink.modules.account.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -33,5 +34,6 @@ public class Think {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @JsonManagedReference
     private User user;
 }
