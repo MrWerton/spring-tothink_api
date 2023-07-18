@@ -1,6 +1,7 @@
 package com.notrew.tothink.modules.account.usecases;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.notrew.tothink.core.exceptions.AppException;
 import com.notrew.tothink.core.security.JwtService;
 import com.notrew.tothink.modules.account.dto.AuthenticationResponseDto;
 import com.notrew.tothink.modules.account.dto.CredentialsDto;
@@ -12,14 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class AccountUsecase {
     public AuthenticationResponseDto register(RegisterDto request) {
         final var userAlreadyExists = getUserDetails(request.getEmail());
 
-        if (userAlreadyExists != null) {
+        if (userAlreadyExists == null) {
             var user = User.builder()
                     .firstname(request.getFirstname())
                     .lastname(request.getLastname())
@@ -53,7 +52,7 @@ public class AccountUsecase {
                     .refreshToken(refreshToken)
                     .build();
         } else {
-            throw new BadCredentialsException("user already");
+            throw new AppException("user already", 400);
         }
 
     }
@@ -66,21 +65,20 @@ public class AccountUsecase {
                             request.getPassword()
                     )
             );
+            var user = repository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new AppException("Credentials Invalids", 400));
+
+            var jwtToken = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
+            return AuthenticationResponseDto.builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .build();
         } catch (AuthenticationException e) {
-            // Handle authentication failure, e.g., log the error or throw a custom exception.
-            throw new AuthenticationException("Authentication failed: " + e.getMessage()) {
-            };
+            throw new AppException("Credentials Invalids", 400);
         }
 
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
 
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        return AuthenticationResponseDto.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
 
